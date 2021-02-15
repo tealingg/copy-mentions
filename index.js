@@ -9,6 +9,7 @@ module.exports = class CopyMention extends Plugin {
         const GuildChannelUserContextMenu = await getModule(m => m.default && m.default.displayName == "GuildChannelUserContextMenu");
         const ChannelListTextChannelContextMenu = await getAllModules((m) => m.default && m.default.displayName == "ChannelListTextChannelContextMenu", false)[2];
         const DMUserContextMenu = await getModule(m => m.default && m.default.displayName == "DMUserContextMenu");
+        const DeveloperContextMenu = await getModule(m => m.default && m.default.displayName == "DeveloperContextMenu");
         const { MenuItem } = await getModule([ "MenuItem" ]);
         console.log(GuildChannelUserContextMenu);
         inject("tealingg-copy-mention-user-guild", GuildChannelUserContextMenu, "default", (args, res) => {
@@ -46,11 +47,25 @@ module.exports = class CopyMention extends Plugin {
                 })
             );
             return res;
-        })
+        });
+        inject("tealingg-copy-mention-role", DeveloperContextMenu, "default", (args, res) => {
+            res.props.children = [
+                res.props.children,
+                React.createElement(MenuItem, {
+                    id: "copy-mention",
+                    label: "Copy Mention",
+                    action: () => {
+                        clipboard.writeText(`<@&${args[0].id}>`);
+                    }
+               })
+            ];
+            return res;
+        });
     }
     pluginWillUnload() {
         uninject("tealingg-copy-mention-user-guild");
         uninject("tealingg-copy-mention-user-dm");
         uninject("tealingg-copy-mention-channel");
+        uninject("tealingg-copy-mention-role");
     }
 }
